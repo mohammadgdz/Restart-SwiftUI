@@ -12,6 +12,9 @@ struct OnboardingView: View {
     
     @AppStorage("onboarding") var isOnboardingViewActive = true
     
+    @State private var buttonWidth = UIScreen.main.bounds.width - 80
+    @State private var buttonOffset: CGFloat = 0
+    
     
     //MARK: - Body
     var body: some View {
@@ -86,7 +89,7 @@ how much love we put into givving.
                     HStack{
                         Capsule()
                             .fill(Color("ColorRed"))
-                            .frame(width: 80)
+                            .frame(width: buttonOffset + 80)
                         Spacer()
                     }
                     //4. CIRCLE (DRAGGABLE)
@@ -104,21 +107,41 @@ how much love we put into givving.
                         }
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80 , alignment: .center)
-                        .onTapGesture {
-                            isOnboardingViewActive = false
-                        }
+                        .offset(x: buttonOffset)
+                        .gesture(
+                            DragGesture()
+                            
+                                .onChanged({ gesture in
+                                    if gesture.translation.width > 0 , buttonOffset <= buttonWidth - 80 {
+                                        buttonOffset = gesture.translation.width
+                                        
+                                    }
+                                })
+                                .onEnded({ _ in
+                                    
+                                    // if the red button is in the right alrea
+                                    if buttonOffset > buttonWidth / 2 {
+                                        buttonOffset = buttonWidth - 80
+                                        isOnboardingViewActive = false
+                                    } else {
+                                        buttonOffset = 0
+                                    }
+                                })
+                                
+                        )//:Gesture
                         
                         Spacer()
                     }//: HStack
                     
                 }//: Footer
-                .frame(height: 80, alignment: .center)
+                .frame(width: buttonWidth ,height: 80, alignment: .center)
                 .padding()
             }//:VStack
         } // : ZStack
     }
 }
 
+//MARK: - Preview
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         OnboardingView()
