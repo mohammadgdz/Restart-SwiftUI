@@ -14,6 +14,7 @@ struct OnboardingView: View {
     
     @State private var buttonWidth = UIScreen.main.bounds.width - 80
     @State private var buttonOffset: CGFloat = 0
+    @State private var isAnimating = false
     
     
     //MARK: - Body
@@ -45,6 +46,9 @@ how much love we put into givving.
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 }//: Header
+                .opacity(isAnimating ? 1 : 0)
+                .offset(y: isAnimating ? 0 : -40)
+                .animation(.easeOut(duration: 1), value: isAnimating)
                 
                 //MARK: - Center
                 
@@ -56,6 +60,8 @@ how much love we put into givving.
                     Image("character-1")
                         .resizable()
                         .scaledToFit()
+                        .opacity(isAnimating ? 1 : 0)
+                        .animation(.easeOut(duration: 1), value: isAnimating)
                     
                 }//: Center
                 
@@ -119,12 +125,14 @@ how much love we put into givving.
                                 })
                                 .onEnded({ _ in
                                     
-                                    // if the red button is in the right alrea
-                                    if buttonOffset > buttonWidth / 2 {
-                                        buttonOffset = buttonWidth - 80
-                                        isOnboardingViewActive = false
-                                    } else {
-                                        buttonOffset = 0
+                                    withAnimation(Animation.easeOut(duration: 0.4)) {
+                                        // if the red button is in the right alrea
+                                        if buttonOffset > buttonWidth / 2 {
+                                            buttonOffset = buttonWidth - 80
+                                            isOnboardingViewActive = false
+                                        } else {
+                                            buttonOffset = 0
+                                        }
                                     }
                                 })
                                 
@@ -136,8 +144,15 @@ how much love we put into givving.
                 }//: Footer
                 .frame(width: buttonWidth ,height: 80, alignment: .center)
                 .padding()
+                .opacity(isAnimating ? 1 : 0)
+                .offset(y: isAnimating ? 0 : 40)
+                .animation(.easeOut(duration: 1), value: isAnimating)
             }//:VStack
         } // : ZStack
+        
+        .onAppear() {
+            isAnimating = true
+        }
     }
 }
 
