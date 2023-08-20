@@ -19,6 +19,8 @@ struct OnboardingView: View {
     @State private var indicationOpacity = 1.0
     @State private var textTitle = "Share."
     
+    let hapticFeedback = UINotificationFeedbackGenerator()
+    
     
     //MARK: - Body
     var body: some View {
@@ -40,12 +42,10 @@ struct OnboardingView: View {
                         .foregroundColor(.white)
                         .transition(.opacity)
                         .id(textTitle)
-                    
-                    
-                    
+
                     Text("""
 It's not how much we give but
-how much love we put into givving.
+how much love we put into giving.
 """)
                     .font(.title3)
                     .fontWeight(.light)
@@ -74,6 +74,8 @@ how much love we put into givving.
                         .animation(.easeOut(duration: 1), value: isAnimating)
                         .offset(x: imageOffset.width * 1.3 , y: 0)
                         .rotationEffect(.degrees(Double(imageOffset.width / 20)))
+                    
+                    //MARK: Image Gesture
                         .gesture(
                             DragGesture()
                                 .onChanged({ gesture in
@@ -159,6 +161,8 @@ how much love we put into givving.
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80 , alignment: .center)
                         .offset(x: buttonOffset)
+                        
+                        //MARK: Button Gesture
                         .gesture(
                             DragGesture()
                             
@@ -173,9 +177,12 @@ how much love we put into givving.
                                     withAnimation(Animation.easeOut(duration: 0.4)) {
                                         // if the red button is in the right alrea
                                         if buttonOffset > buttonWidth / 2 {
+                                            hapticFeedback.notificationOccurred(.success)
                                             buttonOffset = buttonWidth - 80
                                             isOnboardingViewActive = false
+                                            playSound(sound: "chimeup", type: "mp3")
                                         } else {
+                                            hapticFeedback.notificationOccurred(.warning)
                                             buttonOffset = 0
                                         }
                                     }
@@ -198,6 +205,7 @@ how much love we put into givving.
         .onAppear() {
             isAnimating = true
         }
+        .preferredColorScheme(.dark)
     }
 }
 
