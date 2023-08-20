@@ -15,6 +15,7 @@ struct OnboardingView: View {
     @State private var buttonWidth = UIScreen.main.bounds.width - 80
     @State private var buttonOffset: CGFloat = 0
     @State private var isAnimating = false
+    @State private var imageOffset : CGSize = .zero
     
     
     //MARK: - Body
@@ -30,11 +31,21 @@ struct OnboardingView: View {
                 Spacer()
                 
                 VStack {
-                    Text("Share")
-                    
-                        .font(.system(size: 60))
-                        .fontWeight(.heavy)
-                        .foregroundColor(.white)
+                    if imageOffset == .zero {
+                        Text("Share")
+                        
+                            .font(.system(size: 60))
+                            .fontWeight(.heavy)
+                            .foregroundColor(.white)
+                    } else {
+                        Text("Give")
+                        
+                            .font(.system(size: 60))
+                            .fontWeight(.heavy)
+                            .foregroundColor(.white)
+                            
+                    }
+                        
                     
                     Text("""
 It's not how much we give but
@@ -55,6 +66,9 @@ how much love we put into givving.
                 ZStack{
                     ZStack{
                         CircleGroupView(ShapeColor: .white, ShapeOpacity: 0.2)
+                            .offset(x: imageOffset.width * -1)
+                            .blur(radius: abs(imageOffset.width / 5))
+                            .animation(.easeOut(duration: 0.8), value: imageOffset)
                     }//:ZStack
                     
                     Image("character-1")
@@ -62,6 +76,21 @@ how much love we put into givving.
                         .scaledToFit()
                         .opacity(isAnimating ? 1 : 0)
                         .animation(.easeOut(duration: 1), value: isAnimating)
+                        .offset(x: imageOffset.width * 1.3 , y: 0)
+                        .rotationEffect(.degrees(Double(imageOffset.width / 20)))
+                        .gesture(
+                        DragGesture()
+                            .onChanged({ gesture in
+                                if abs(imageOffset.width) <= 150 {
+                                    imageOffset = gesture.translation
+                                }
+                            })
+                            .onEnded({ _ in
+                                imageOffset = .zero
+                            })
+                        )//: Gesture image
+                        .animation(.easeOut(duration: 0.8), value: imageOffset)
+                        
                     
                 }//: Center
                 
