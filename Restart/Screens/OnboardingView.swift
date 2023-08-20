@@ -16,6 +16,8 @@ struct OnboardingView: View {
     @State private var buttonOffset: CGFloat = 0
     @State private var isAnimating = false
     @State private var imageOffset : CGSize = .zero
+    @State private var indicationOpacity = 1.0
+    @State private var textTitle = "Share."
     
     
     //MARK: - Body
@@ -31,21 +33,15 @@ struct OnboardingView: View {
                 Spacer()
                 
                 VStack {
-                    if imageOffset == .zero {
-                        Text("Share")
-                        
-                            .font(.system(size: 60))
-                            .fontWeight(.heavy)
-                            .foregroundColor(.white)
-                    } else {
-                        Text("Give")
-                        
-                            .font(.system(size: 60))
-                            .fontWeight(.heavy)
-                            .foregroundColor(.white)
-                            
-                    }
-                        
+                    
+                    Text(textTitle)
+                        .font(.system(size: 60))
+                        .fontWeight(.heavy)
+                        .foregroundColor(.white)
+                        .transition(.opacity)
+                        .id(textTitle)
+                    
+                    
                     
                     Text("""
 It's not how much we give but
@@ -79,20 +75,40 @@ how much love we put into givving.
                         .offset(x: imageOffset.width * 1.3 , y: 0)
                         .rotationEffect(.degrees(Double(imageOffset.width / 20)))
                         .gesture(
-                        DragGesture()
-                            .onChanged({ gesture in
-                                if abs(imageOffset.width) <= 150 {
-                                    imageOffset = gesture.translation
-                                }
-                            })
-                            .onEnded({ _ in
-                                imageOffset = .zero
-                            })
+                            DragGesture()
+                                .onChanged({ gesture in
+                                    if abs(imageOffset.width) <= 150 {
+                                        imageOffset = gesture.translation
+                                        
+                                        withAnimation(.linear(duration: 0.25)) {
+                                            indicationOpacity = 0
+                                            textTitle = "Give."
+                                        }
+                                    }
+                                })
+                                .onEnded({ _ in
+                                    imageOffset = .zero
+                                    withAnimation(.linear(duration: 0.25)) {
+                                        indicationOpacity = 1
+                                        textTitle = "Share."
+                                    }
+                                })
                         )//: Gesture image
                         .animation(.easeOut(duration: 0.8), value: imageOffset)
-                        
                     
                 }//: Center
+                
+                .overlay(
+                    Image(systemName: "arrow.left.and.right.circle")
+                        .font(.system(size: 44, weight: .light))
+                        .foregroundColor(.white)
+                        .offset(y: 20)
+                        .opacity(isAnimating ? 1 : 0)
+                        .animation(.easeOut(duration: 1).delay(1), value: isAnimating)
+                        .opacity(indicationOpacity)
+                    
+                    , alignment: .bottom
+                )
                 
                 Spacer()
                 
@@ -164,7 +180,7 @@ how much love we put into givving.
                                         }
                                     }
                                 })
-                                
+                            
                         )//:Gesture
                         
                         Spacer()
